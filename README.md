@@ -29,7 +29,7 @@ The codebase contains **intentional bugs** that you need to identify and fix:
 
 ## Your Tasks
 
-### Task 1: Fix Backend Bugs (server.js)
+### Task 1: Fix Backend Bugs (server.js) (Duc Anh)
 - [ ] Bug #1: Wrong default password
 - [ ] Bug #2: Missing validation for empty title
 - [ ] Bug #3: Missing DELETE endpoint
@@ -37,25 +37,25 @@ The codebase contains **intentional bugs** that you need to identify and fix:
 - [ ] Bug #5: Server starts in test mode
 - [ ] Bug #6: App not exported for tests
 
-### Task 2: Complete Dockerfiles
-- [ ] Complete `backend/Dockerfile` (multi-stage build)
-- [ ] Complete `frontend/Dockerfile` (multi-stage build)
-- [ ] Create `.dockerignore` files for both
+### Task 2: Complete Dockerfiles (Duc Anh (X) , Nhat Minh (O) )
+- [ ] Complete `backend/Dockerfile` (multi-stage build) (X)
+- [ ] Complete `frontend/Dockerfile` (multi-stage build) (O)
+- [ ] Create `.dockerignore` files for both (X,O)
 
-### Task 3: Complete docker-compose.yml
+### Task 3: Complete docker-compose.yml (Duc Anh, Nhat Minh)
 - [ ] Add proper environment variables
 - [ ] Add healthchecks for backend and postgres
 - [ ] Add volume mounts for database persistence
 - [ ] Mount init script for database
 - [ ] Configure service dependencies with health conditions
 
-### Task 4: Create CI/CD Pipeline
+### Task 4: Create CI/CD Pipeline (Nhat Minh)
 - [ ] Create `.github/workflows/ci.yml`
 - [ ] Configure build-and-test job with PostgreSQL service
 - [ ] Configure Docker build and push to Docker Hub
 - [ ] Configure deploy job with SSH
 
-### Task 5: GitHub Configuration
+### Task 5: GitHub Configuration (Nhat Minh)
 - [ ] Setup branch protection for main
 - [ ] Add required secrets
 - [ ] Configure PR review requirements
