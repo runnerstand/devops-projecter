@@ -8,12 +8,12 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// BUG #1: Wrong default password - doesn't match docker-compose!
+// BUG #1: Fixed - default password now matches docker-compose
 const pool = new Pool({
    user: process.env.DB_USER || 'postgres',
    host: process.env.DB_HOST || 'localhost',
    database: process.env.DB_NAME || 'tododb',
-   password: process.env.DB_PASSWORD || 'wrongpassword',
+   password: process.env.DB_PASSWORD || 'postgres',
    port: process.env.DB_PORT || 5432,
 });
 
@@ -31,15 +31,14 @@ app.get('/api/todos', async (req, res) => {
    }
 });
 
-// BUG #2: Missing validation - will cause test to fail!
-// STUDENT TODO: Add validation to reject empty title
+// BUG #2: Fixed - validation rejects empty or whitespace-only title
 app.post('/api/todos', async (req, res) => {
    try {
       const { title, completed = false } = req.body;
 
-      // STUDENT FIX: Add validation here!
-      // Hint: Check if title is empty or undefined
-      // Return 400 status with error message if invalid
+      if (!title || !title.trim()) {
+         return res.status(400).json({ error: 'Title is required' });
+      }
 
       const result = await pool.query(
          'INSERT INTO todos(title, completed) VALUES($1, $2) RETURNING *',
@@ -51,19 +50,46 @@ app.post('/api/todos', async (req, res) => {
    }
 });
 
-// BUG #3: Missing DELETE endpoint - but test expects it!
-// STUDENT TODO: Implement DELETE /api/todos/:id endpoint
+// BUG #3: Fixed - DELETE endpoint implemented
+app.delete('/api/todos/:id', async (req, res) => {
+   try {
+      const { id } = req.params;
+      const result = await pool.query('DELETE FROM todos WHERE id = $1 RETURNING *', [id]);
+      if (result.rows.length === 0) {
+         return res.status(404).json({ error: 'Todo not found' });
+      }
+      res.json(result.rows[0]);
+   } catch (err) {
+      res.status(500).json({ error: err.message });
+   }
+});
 
-// BUG #4: Missing PUT endpoint for updating todos
-// STUDENT TODO: Implement PUT /api/todos/:id endpoint
+// BUG #4: Fixed - PUT endpoint implemented
+app.put('/api/todos/:id', async (req, res) => {
+   try {
+      const { id } = req.params;
+      const { title, completed } = req.body;
+      const result = await pool.query(
+         'UPDATE todos SET title = $1, completed = $2 WHERE id = $3 RETURNING *',
+         [title, completed, id]
+      );
+      if (result.rows.length === 0) {
+         return res.status(404).json({ error: 'Todo not found' });
+      }
+      res.json(result.rows[0]);
+   } catch (err) {
+      res.status(500).json({ error: err.message });
+   }
+});
 
 const port = process.env.PORT || 8080;
 
-// BUG #5: Server starts even in test mode, causing port conflicts
-// STUDENT FIX: Only start server if NOT in test mode
-app.listen(port, () => {
-   console.log(`Backend running on port ${port}`);
-});
+// BUG #5: Fixed - only start server when NOT in test mode
+if (process.env.NODE_ENV !== 'test') {
+   app.listen(port, () => {
+      console.log(`Backend running on port ${port}`);
+   });
+}
 
-// BUG #6: App not exported - tests can't import it!
-// STUDENT FIX: Export the app module
+// BUG #6: Fixed - export app for tests
+module.exports = app;
