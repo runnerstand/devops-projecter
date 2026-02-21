@@ -69,9 +69,33 @@ app.put('/api/todos/:id', async (req, res) => {
    try {
       const { id } = req.params;
       const { title, completed } = req.body;
+
+      // Require at least one field to update
+      if (title === undefined && completed === undefined) {
+         return res.status(400).json({ error: 'At least one of title or completed is required' });
+      }
+
+      // Build dynamic SET clause with only provided fields
+      const setClauses = [];
+      const values = [];
+      let paramIndex = 1;
+
+      if (title !== undefined) {
+         if (!title || !title.trim()) {
+            return res.status(400).json({ error: 'Title cannot be empty' });
+         }
+         setClauses.push(`title = $${paramIndex++}`);
+         values.push(title);
+      }
+      if (completed !== undefined) {
+         setClauses.push(`completed = $${paramIndex++}`);
+         values.push(completed);
+      }
+
+      values.push(id);
       const result = await pool.query(
-         'UPDATE todos SET title = $1, completed = $2 WHERE id = $3 RETURNING *',
-         [title, completed, id]
+         `UPDATE todos SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+         values
       );
       if (result.rows.length === 0) {
          return res.status(404).json({ error: 'Todo not found' });
