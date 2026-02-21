@@ -85,7 +85,7 @@ app.put('/api/todos/:id', async (req, res) => {
             return res.status(400).json({ error: 'Title cannot be empty' });
          }
          setClauses.push(`title = $${paramIndex++}`);
-         values.push(title);
+         values.push(title.trim());
       }
       if (completed !== undefined) {
          setClauses.push(`completed = $${paramIndex++}`);
