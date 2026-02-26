@@ -8,15 +8,19 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-// BUG #1: Fixed - default password now matches docker-compose
-const pool = new Pool({
-   user: process.env.DB_USER || 'postgres',
-   host: process.env.DB_HOST || 'localhost',
-   database: process.env.DB_NAME || 'tododb',
-   password: process.env.DB_PASSWORD || 'postgres',
-   port: process.env.DB_PORT || 5432,
-});
-
+// BUG #1/#7: Added - default password now matches docker-compose and support for DATABASE_URL for production environments
+const pool = process.env.DATABASE_URL 
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    })
+  : new Pool({
+      user: process.env.DB_USER || 'postgres',
+      host: process.env.DB_HOST || 'localhost',
+      database: process.env.DB_NAME || 'tododb',
+      password: process.env.DB_PASSWORD || 'postgres',
+      port: process.env.DB_PORT || 5432,
+    });
 app.get('/health', (req, res) => {
    res.json({ status: 'healthy', version: '1.0.0' });
 });
