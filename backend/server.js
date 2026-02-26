@@ -26,13 +26,25 @@ app.get('/health', (req, res) => {
 });
 
 // GET todos
-app.get('/api/todos', async (req, res) => {
-   try {
-      const result = await pool.query('SELECT * FROM todos ORDER BY id');
-      res.json(result.rows);
-   } catch (err) {
-      res.status(500).json({ error: err.message });
-   }
+// BUG #8: Added - GET endpoint to retrieve all todos
+app.get('/api/setup', async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id SERIAL PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        completed BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+      INSERT INTO todos (title, completed) VALUES
+        ('Learn Docker', false),
+        ('Setup CI/CD', true),
+        ('Deploy to production', false);
+    `);
+    res.json({ message: "Database table created and seeded successfully! 🎉" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // BUG #2: Fixed - validation rejects empty or whitespace-only title
