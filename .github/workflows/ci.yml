@@ -70,6 +70,8 @@ jobs:
           
       - name: Build and push Frontend Image
         run: |
+          echo "REACT_APP_API_URL=https://devops-todo-backend.onrender.com" > ./frontend/.env
+          echo "VITE_API_URL=https://devops-todo-backend.onrender.com" >> ./frontend/.env
           docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest
 
