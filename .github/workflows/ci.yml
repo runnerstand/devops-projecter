@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+# 1. This tells GitHub to run this script ONLY when you push to the main branch
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # --- PHASE 1: TEST ---
+  test:
+    runs-on: ubuntu-latest
+    # We spin up a temporary database just for the backend tests
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: tododb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install backend dependencies
+        working-directory: ./backend
+        run: npm install
+        
+      - name: Run backend tests
+        working-directory: ./backend
+        run: npm test
+        env:
+          DB_USER: postgres
+          DB_PASSWORD: password
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: tododb
+
+  # --- PHASE 2: BUILD & PUSH TO DOCKER HUB ---
+  build-and-push:
+    needs: test # This waits for tests to pass before running!
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        
+      - name: Build and push Backend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-backend:latest ./backend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-backend:latest
+          
+      - name: Build and push Frontend Image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest ./frontend
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest
+
+  # --- PHASE 3: DEPLOY TO RENDER ---
+  deploy:
+    needs: build-and-push # Waits for the Docker images to finish uploading!
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ring the Render Backend Doorbell
+        run: curl -X POST ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+        
+      - name: Ring the Render Frontend Doorbell
+        run: curl -X POST ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
