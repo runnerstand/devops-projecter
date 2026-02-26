@@ -26,7 +26,7 @@ app.get('/health', (req, res) => {
 });
 
 // GET todos
-// BUG #8: Added - GET endpoint to retrieve all todos
+//BUG #8: Added - setup endpoint to create table and seed data for easier testing (That was dumb of me)
 app.get('/api/setup', async (req, res) => {
   try {
     await pool.query(`
@@ -42,6 +42,16 @@ app.get('/api/setup', async (req, res) => {
         ('Deploy to production', false);
     `);
     res.json({ message: "Database table created and seeded successfully! 🎉" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET todos
+app.get('/api/todos', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM todos ORDER BY id');
+    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
