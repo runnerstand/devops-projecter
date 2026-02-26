@@ -37,6 +37,11 @@ jobs:
         working-directory: ./backend
         run: npm install
         
+      - name: Initialize test database
+        env:
+          PGPASSWORD: password
+        run: psql -h localhost -U postgres -d tododb -f ./database/database.sql
+        
       - name: Run backend tests
         working-directory: ./backend
         run: npm test
