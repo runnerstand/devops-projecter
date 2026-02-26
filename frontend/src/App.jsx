@@ -38,40 +38,10 @@ function App() {
     }
   };
 
-  const deleteTodo = async (id) => {
-    try {
-      const response = await fetch(`${API_URL}/api/todos/${id}`, {
-        method: 'DELETE',
-      });
-      if (response.ok) {
-        // Remove it from the screen immediately
-        setTodos(todos.filter(todo => todo.id !== id)); 
-      }
-    } catch (error) {
-      console.error("Error deleting task:", error);
-    }
-  };
-
-  const toggleStatus = async (id, currentStatus, title) => {
-    try {
-      const response = await fetch(`${API_URL}/api/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title, completed: !currentStatus }),
-      });
-      if (response.ok) {
-        const updatedTodo = await response.json();
-        // Update the specific task on the screen
-        setTodos(todos.map(todo => (todo.id === id ? updatedTodo : todo)));
-      }
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
-  };
-
   return (
     <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h1>DevOps Todo App</h1>
+      <h1>🚀 DevOps Todo App</h1>
+      <p>Demo: Watch UI update LIVE after CI/CD! ✨</p>
 
       <div style={{ marginBottom: '20px' }}>
         <input
@@ -85,25 +55,29 @@ function App() {
         </button>
       </div>
 
-      <div style={{ listStyle: 'none', padding: 0 }}>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
         {todos.map(todo => (
-          <div key={todo.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px', borderBottom: '1px solid #ccc', marginBottom: '5px' }}>
-            
-            <div 
-              style={{ cursor: 'pointer', textDecoration: todo.completed ? 'line-through' : 'none', flexGrow: 1 }}
-              onClick={() => toggleStatus(todo.id, todo.completed, todo.title)}
-            >
-              {todo.completed ? '✅' : '⏳'} {todo.title}
-            </div>
-
-            <button 
-              onClick={() => deleteTodo(todo.id)} 
-              style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
-            >
-              Delete
-            </button>
-          </div>
+          <li key={todo.id} style={{
+            padding: '10px',
+            border: '1px solid #ddd',
+            marginBottom: '5px',
+            display: 'flex',
+            justifyContent: 'space-between'
+          }}>
+            <span>{todo.title}</span>
+            <small>{todo.completed ? '✅' : '⏳'}</small>
+          </li>
         ))}
+      </ul>
+
+      <div style={{ marginTop: '30px', fontSize: '12px', color: '#666' }}>
+        <p><strong>STUDENT TODO:</strong></p>
+        <ul>
+          <li>Dockerfile (multi-stage)</li>
+          <li>Fix backend validation (broken test)</li>
+          <li>CI/CD pipeline</li>
+          <li>REPORT.md + Slides</li>
+        </ul>
       </div>
     </div>
   );
