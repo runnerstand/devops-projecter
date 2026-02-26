@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 
-// STUDENT TODO: This API_URL works for local development
-// For Docker, you may need to configure nginx proxy or use container networking
-const API_URL = "https://devops-todo-backend.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
 
 function App() {
   const [todos, setTodos] = useState([]);
@@ -15,8 +13,12 @@ function App() {
   const fetchTodos = async () => {
     try {
       const res = await fetch(`${API_URL}/api/todos`);
+      if (!res.ok) {
+        console.error('API error:', res.status, res.statusText);
+        return;
+      }
       const data = await res.json();
-      setTodos(data);
+      setTodos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Fetch error:', err);
     }
