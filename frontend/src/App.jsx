@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 
 // STUDENT TODO: This API_URL works for local development
 // For Docker, you may need to configure nginx proxy or use container networking
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+// Ensure no trailing slash to avoid double slashes in API calls
+const API_URL = (process.env.REACT_APP_API_URL || "http://localhost:8080").replace(/\/$/, '');
 
 function App() {
+  console.log('API_URL:', API_URL); // Debugging
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
 
@@ -69,6 +71,16 @@ function App() {
           </li>
         ))}
       </ul>
+
+      <div style={{ marginTop: '30px', fontSize: '12px', color: '#666' }}>
+        <p><strong>STUDENT TODO:</strong></p>
+        <ul>
+          <li>Dockerfile (multi-stage)</li>
+          <li>Fix backend validation (broken test)</li>
+          <li>CI/CD pipeline</li>
+          <li>REPORT.md + Slides</li>
+        </ul>
+      </div>
     </div>
   );
 }
