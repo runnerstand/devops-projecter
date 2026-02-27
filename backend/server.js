@@ -76,63 +76,7 @@ app.post('/api/todos', async (req, res) => {
    }
 });
 
-// BUG #3: Fixed - DELETE endpoint implemented
-app.delete('/api/todos/:id', async (req, res) => {
-   try {
-      const { id } = req.params;
-      const result = await pool.query('DELETE FROM todos WHERE id = $1 RETURNING *', [id]);
-      if (result.rows.length === 0) {
-         return res.status(404).json({ error: 'Todo not found' });
-      }
-      res.json(result.rows[0]);
-   } catch (err) {
-      res.status(500).json({ error: err.message });
-   }
-});
 
-// BUG #4: Fixed - PUT endpoint implemented
-app.put('/api/todos/:id', async (req, res) => {
-   try {
-      const { id } = req.params;
-      const { title, completed } = req.body;
-
-      // Require at least one field to update
-      if (title === undefined && completed === undefined) {
-         return res.status(400).json({ error: 'At least one of title or completed is required' });
-      }
-
-      // Build dynamic SET clause with only provided fields
-      const setClauses = [];
-      const values = [];
-      let paramIndex = 1;
-
-      if (title !== undefined) {
-         if (!title || !title.trim()) {
-            return res.status(400).json({ error: 'Title cannot be empty' });
-         }
-         setClauses.push(`title = $${paramIndex++}`);
-         values.push(title.trim());
-      }
-      if (completed !== undefined) {
-         setClauses.push(`completed = $${paramIndex++}`);
-         values.push(completed);
-      }
-
-      values.push(id);
-      const result = await pool.query(
-         `UPDATE todos SET ${setClauses.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
-         values
-      );
-      if (result.rows.length === 0) {
-         return res.status(404).json({ error: 'Todo not found' });
-      }
-      res.json(result.rows[0]);
-   } catch (err) {
-      res.status(500).json({ error: err.message });
-   }
-});
-
-const port = process.env.PORT || 8080;
 
 // BUG #5: Fixed - only start server when NOT in test mode
 if (process.env.NODE_ENV !== 'test') {
