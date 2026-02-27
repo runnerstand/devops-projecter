@@ -5,7 +5,14 @@ const helmet = require('helmet');
 
 const app = express();
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://devops-todo-frontend.onrender.com'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 app.use(express.json());
 
 // BUG #1/#7: Added - default password now matches docker-compose and support for DATABASE_URL for production environments
