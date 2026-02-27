@@ -17,8 +17,12 @@ function App() {
   const fetchTodos = async () => {
     try {
       const res = await fetch(`${API_URL}/api/todos`);
+      if (!res.ok) {
+        console.error('API error:', res.status, res.statusText);
+        return;
+      }
       const data = await res.json();
-      setTodos(data);
+      setTodos(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Fetch error:', err);
     }
