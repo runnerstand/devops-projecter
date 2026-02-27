@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8080";
+// STUDENT TODO: This API_URL works for local development
+// For Docker, you may need to configure nginx proxy or use container networking
+// Ensure no trailing slash to avoid double slashes in API calls
+const API_URL = (process.env.REACT_APP_API_URL || "http://localhost:8080").replace(/\/$/, '');
 
 function App() {
+  console.log('API_URL:', API_URL); // Debugging
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState('');
 
