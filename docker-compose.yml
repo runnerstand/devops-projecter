@@ -41,7 +41,10 @@ version: '3.8'
 
 services:
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - REACT_APP_API_URL=http://backend:8080
     ports:
       - "3000:3000"
     depends_on:
