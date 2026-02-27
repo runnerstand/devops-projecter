@@ -70,7 +70,7 @@ jobs:
           
       - name: Build and push Frontend Image
         run: |
-          docker build --build-arg VITE_API_URL=https://devops-todo-backend.onrender.com --build-arg REACT_APP_API_URL=https://devops-todo-backend.onrender.com -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest ./frontend
+          docker build --build-arg REACT_APP_API_URL=https://devops-todo-backend.onrender.com -t ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest ./frontend
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-todo-frontend:latest
 
   # --- PHASE 3: DEPLOY TO RENDER ---
